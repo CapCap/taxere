@@ -27,7 +27,17 @@ require 'taxere'
 ```
 Omitting state will return just the calculated federal tax amount.
 
+Alternatively, you can just see what data we have:
+```ruby
+require "taxere/state_tax_calculator"
+::Taxere::StateTaxCalculator.new.get_state_data(year, state_abbr)
+```
+```ruby
+require "taxere/federal_tax_calculator"
+::Taxere::FederalTaxCalculator.new.get_federal_data(year)
+```
+
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/capcap/taxere.
+Bug reports and pull requests are welcome on GitHub at [https://github.com/capcap/taxere](https://github.com/capcap/taxere).
 
