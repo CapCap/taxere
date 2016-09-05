@@ -20,8 +20,7 @@ module Taxere
 
 
     def get_fica_tax_amount(income, is_married)
-      amount = income * (::Taxere::Constants::SSA_RATE + ::Taxere::Constants::MEDICARE_RATE)
-      round(amount, 2)
+      income * (::Taxere::Constants::SSA_RATE + ::Taxere::Constants::MEDICARE_RATE)
     end
 
     def get_federal_data(year)

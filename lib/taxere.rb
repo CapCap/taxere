@@ -16,9 +16,11 @@ module Taxere
 
       federal_taxes = ::Taxere::FederalTaxCalculator.new.calculate(year, pay_rate, pay_periods, filing_status)
       state_taxes = ::Taxere::TaxCalculatorBase.new_nice_hash
-      unless state.empty?
+
+      unless state.to_s.empty?
         state_taxes = StateTaxCalculator.new.calculate(year, pay_rate, pay_periods, filing_status, state)
       end
+
       response["data"]["annual"] = federal_taxes["data"].merge(state_taxes["data"])
 
       if pay_periods > 1

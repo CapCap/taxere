@@ -5,6 +5,7 @@ module Taxere
 
     def calculate(year, pay_rate, pay_periods, filing_status, state)
       @response["data"]["state"]["amount"] = self.get_state_tax_amount(year, pay_rate * pay_periods, filing_status, state)
+      @response
     end
 
     def get_state_tax_amount(year, income, filing_status, state_abbr)
@@ -19,7 +20,7 @@ module Taxere
     end
 
     def get_state_data(year, state_abbr)
-      state = ::Taxere::StateConstants::SHORT_TO_FULL_MAP(state_abbr)
+      state = ::Taxere::StateConstants::SHORT_TO_FULL_MAP[state_abbr]
       get_tax_table(year.to_s, state)
     end
 

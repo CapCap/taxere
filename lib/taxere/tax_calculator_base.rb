@@ -14,7 +14,7 @@ module Taxere
 
     def get_tax_table(year, state)
       @response["success"] = false
-      if state.empty?
+      if state.to_s.empty?
         @response["reason"] = "Invalid State"
       elsif !::Taxere::Constants.supports_year?(year)
         @response["reason"] = "Invalid Year"
@@ -33,17 +33,17 @@ module Taxere
       end
 
       exemption_amount = 0
-      unless target_table["exemptions"].empty? || target_table["exemptions"]["personal"].empty?
+      unless target_table["exemptions"].to_s.empty? || target_table["exemptions"]["personal"].to_s.empty?
         # exemptions = target_table["exemptions"]["personal"].to_i
       end
 
       adjusted_income = [income - deduction_amount - exemption_amount, 0].max
 
-      amount = BigDecimal.new(0)
+      amount = ::BigDecimal.new(0, 8)
 
       Array(target_table["income_tax_brackets"]).each_with_index do |tax_bracket, mrate_index|
-        bracket = BigDecimal.new(tax_bracket["bracket"]) / 100
-        marginal_rate = BigDecimal.new(tax_bracket["marginal_rate"])
+        bracket = ::BigDecimal.new(tax_bracket["bracket"], 8) / 100
+        marginal_rate = ::BigDecimal.new(tax_bracket["marginal_rate"], 8)
 
         if mrate_index == target_table["income_tax_brackets"].length - 1
           amount += (adjusted_income - bracket) * marginal_rate
