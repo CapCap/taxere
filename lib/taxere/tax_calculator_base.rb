@@ -6,24 +6,22 @@ require "taxere/nice_hash"
 module Taxere
   class TaxCalculatorBase
 
-    attr_reader :response
-
-    def initialize
-      @response = ::Taxere::TaxCalculatorBase.new_nice_hash
-    end
-
+    # this doubles as a response to "/v1/federal/:year/" 
+    # and "/v1/state/:state/:year/", and for use internally.
     def get_tax_table(year, state)
-      @response["success"] = false
+      response = self.class.new_nice_hash
+      response["success"] = false
+
       if state.to_s.empty?
-        @response["reason"] = "Invalid State"
+        response["reason"] = "Invalid State"
       elsif !::Taxere::Constants.supports_year?(year)
-        @response["reason"] = "Invalid Year"
+        response["reason"] = "Invalid Year"
       else
-        @response["success"] = true
-        @response["data"] = ::Taxere::Constants::get_tax_table(year.to_s, state.downcase.gsub(" ", "_"))
+        response["success"] = true
+        response["data"] = ::Taxere::Constants::get_tax_table(year.to_s, state.downcase.gsub(" ", "_"))
       end
 
-      @response
+      response
     end
 
     def get_income_tax_amount(target_table, income)
@@ -36,7 +34,10 @@ module Taxere
       brackets = target_table["income_tax_brackets"];
       last_bracket_i = brackets.length - 1
 
+      # iterate through the brackets, taxing each chunk from lower..upper
+      # at that bracket's rate, and sum each chunk's tax amount.
       brackets.each_with_index do |bracket, bracket_i|
+
         lower = ::BigDecimal.new(bracket["bracket"], 8)
         upper = bracket_i != last_bracket_i ? brackets[bracket_i + 1]["bracket"] - penny : BigDecimal('Infinity')
         marginal_rate = ::BigDecimal.new(bracket["marginal_rate"], 8) / ::BigDecimal.new('100')
