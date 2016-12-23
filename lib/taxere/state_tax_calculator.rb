@@ -12,11 +12,7 @@ module Taxere
       state_data = self.get_state_data(year, state_abbr)
       target_table = state_data["data"][filing_status]
 
-      # lol @ "TODO UNKNOWN!"
-      return nil if target_table["type"]== "none"|| target_table["type"]== "TODO UNKNOWN!"
-
       get_income_tax_amount(target_table, income)
-
     end
 
     def get_state_data(year, state_abbr)

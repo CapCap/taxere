@@ -27,35 +27,43 @@ module Taxere
     end
 
     def get_income_tax_amount(target_table, income)
-      deduction_amount = 0
-      Array(target_table["deductions"]).each do |deduction|
-        deduction_amount += deduction["deduction_amount"].to_i
-      end
-
-      exemption_amount = 0
-      unless target_table["exemptions"].to_s.empty? || target_table["exemptions"]["personal"].to_s.empty?
-        # exemptions = target_table["exemptions"]["personal"].to_i
-      end
-
-      adjusted_income = [income - deduction_amount - exemption_amount, 0].max
+      deduction_amount = get_deduction_amount(target_table)
+      # exemption_amount = 0, there are no exemptions in the tax tables
+      adjusted_income = ::BigDecimal.new([income - deduction_amount, 0].max, 8)
 
       amount = ::BigDecimal.new(0, 8)
 
-      Array(target_table["income_tax_brackets"]).each_with_index do |tax_bracket, mrate_index|
-        bracket = ::BigDecimal.new(tax_bracket["bracket"], 8) / 100
-        marginal_rate = ::BigDecimal.new(tax_bracket["marginal_rate"], 8)
+      brackets = target_table["income_tax_brackets"];
+      last_bracket_i = brackets.length - 1
 
-        if mrate_index == target_table["income_tax_brackets"].length - 1
-          amount += (adjusted_income - bracket) * marginal_rate
-        elsif adjusted_income < target_table["income_tax_brackets"][mrate_index + 1]["bracket"]
-          amount += (adjusted_income - bracket) * marginal_rate
-          break
-        else
-          amount+= (target_table["income_tax_brackets"][mrate_index + 1]["bracket"] - bracket) * marginal_rate
+      brackets.each_with_index do |bracket, bracket_i|
+        lower = ::BigDecimal.new(bracket["bracket"], 8)
+        upper = bracket_i != last_bracket_i ? brackets[bracket_i + 1]["bracket"] - penny : BigDecimal('Infinity')
+        marginal_rate = ::BigDecimal.new(bracket["marginal_rate"], 8) / ::BigDecimal.new('100')
+
+        taxable = 0
+        if adjusted_income > upper    # max amount from this bracket
+          taxable = upper - lower
+        elsif adjusted_income > lower # it wasn't bigger than upper, is it between?
+          taxable = adjusted_income - lower
         end
+
+        amount += taxable * marginal_rate
       end
 
       amount
+    end
+
+    private
+
+    def penny
+      @_penny ||= BigDecimal.new("0.01", 8)
+    end
+
+    def get_deduction_amount(target_table)
+      target_table["deductions"].each.reduce(0) do |sum, deduction|
+        sum += deduction["deduction_amount"].to_i
+      end
     end
 
     class << self
