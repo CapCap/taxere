@@ -25,8 +25,8 @@ module Taxere
                          "VT", "VA", "WA", "WV", "WI", "WY"].freeze
 
     SHORT_TO_FULL_MAP = STATE_SHORT_NAMES
-                            .zip(STATE_FULL_NAMES)
-                            .reduce({}) {|a, p| a.merge!( p[0] => p[1] ) }.freeze
+                          .zip(STATE_FULL_NAMES)
+                          .reduce({}) {|a, p| a.merge!( p[0] => p[1] ) }.freeze
 
   end
 end

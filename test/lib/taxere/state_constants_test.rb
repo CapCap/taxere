@@ -1,6 +1,6 @@
 require_relative '../../test_helper.rb'
 
-class TestStateConstants < Minitest::Unit::TestCase
+class TestStateConstants < Minitest::Test
   def test_short_to_full_map
     test_short = 'AL'
     test_long  = 'Alabama'
