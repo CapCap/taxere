@@ -1,7 +1,6 @@
 require "bigdecimal"
 require "taxere/constants"
 require "taxere/state_constants"
-require "taxere/nice_hash"
 
 module Taxere
   class TaxCalculatorBase
@@ -70,6 +69,10 @@ module Taxere
     class << self
       def new_nice_hash
         Hash.new { |h, k| h[k] = Hash.new(&h.default_proc) }
+      end
+
+      def format_dollars(val)
+        "%.02f" % val.to_f.round(2)
       end
     end
 

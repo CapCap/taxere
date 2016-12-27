@@ -5,7 +5,7 @@ module Taxere
 
     def initialize(year, pay_rate, pay_periods, filing_status, state)
       @year          = year.to_s
-      @pay_rate      = pay_rate.to_f
+      @pay_rate      = BigDecimal.new(pay_rate.to_s)
       @pay_periods   = pay_periods.to_i
       @filing_status = filing_status
       @state_abbrev  = state
