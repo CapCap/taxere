@@ -17,6 +17,11 @@ module Taxere
       response
     end
 
+    def get_state_data
+      state = StateConstants::SHORT_TO_FULL_MAP[@state_abbrev]
+      get_tax_table(@year, state)
+    end
+
     private
 
     def state_tax_amount
@@ -30,11 +35,5 @@ module Taxere
     def income
       @pay_rate * @pay_periods
     end
-
-    def get_state_data
-      state = StateConstants::SHORT_TO_FULL_MAP[@state_abbrev]
-      get_tax_table(@year, state)
-    end
-
   end
 end

@@ -20,6 +20,10 @@ module Taxere
       @response
     end
 
+    def get_federal_data(year)
+      get_tax_table(year.to_s, "federal")
+    end
+
     private
 
     def get_federal_income_tax_amount
@@ -43,10 +47,5 @@ module Taxere
       pay_schedule = "annual"
       tax_table["tax_withholding_percentage_method_tables"][pay_schedule][@filing_status]
     end
-
-    def get_federal_data(year)
-      get_tax_table(year.to_s, "federal")
-    end
-
   end
 end
