@@ -3,26 +3,37 @@ require "taxere/tax_calculator_base"
 module Taxere
   class StateTaxCalculator < ::Taxere::TaxCalculatorBase
 
-    def calculate(year, pay_rate, pay_periods, filing_status, state)
-      @response["data"]["state"]["amount"] = self.get_state_tax_amount(year, pay_rate * pay_periods, filing_status, state)
-      @response
+    def initialize(year, pay_rate, pay_periods, filing_status, state)
+      @year          = year.to_s
+      @pay_rate      = BigDecimal.new(pay_rate.to_s)
+      @pay_periods   = pay_periods.to_i
+      @filing_status = filing_status
+      @state_abbrev  = state
     end
 
-    def get_state_tax_amount(year, income, filing_status, state_abbr)
-      state_data = self.get_state_data(year, state_abbr)
-      target_table = state_data["data"][filing_status]
+    def calculate
+      response = self.class.new_nice_hash
+      response["data"]["state"]["amount"] = "%.02f" % state_tax_amount
+      response
+    end
 
-      # lol @ "TODO UNKNOWN!"
-      return nil if target_table["type"]== "none"|| target_table["type"]== "TODO UNKNOWN!"
+    def get_state_data
+      state = StateConstants::SHORT_TO_FULL_MAP[@state_abbrev]
+      get_tax_table(@year, state)
+    end
 
+    private
+
+    def state_tax_amount
       get_income_tax_amount(target_table, income)
-
     end
 
-    def get_state_data(year, state_abbr)
-      state = ::Taxere::StateConstants::SHORT_TO_FULL_MAP[state_abbr]
-      get_tax_table(year.to_s, state)
+    def target_table
+      get_state_data["data"][@filing_status]
     end
 
+    def income
+      @pay_rate * @pay_periods
+    end
   end
 end
